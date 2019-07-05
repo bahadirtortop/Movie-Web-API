@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Movie.Domain\Movie.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
