@@ -1,0 +1,12 @@
+﻿using Movie.Service.Movie.Model;
+using Movie.Service.Repository;
+
+namespace Movie.Service.Movie
+{
+    public interface IMovieRepository : IGenericRepository<Domain.Model.Movie>
+    {
+        MovieListDtoModel Get(MovieSearchDtoModel model);
+        long Create(MovieEditDtoModel model);
+        void Update(MovieEditDtoModel model);
+    }
+}
