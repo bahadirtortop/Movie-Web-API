@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Movie.Service.Movie;
 using Movie.Service.Movie.Model;
 using MovieWebAPI.Infrastructure.AppSettings;
+using MovieWebAPI.Infrastructure.Caching;
 using MovieWebAPI.Infrastructure.Mapping;
 using MovieWebAPI.Model.API;
 using MovieWebAPI.Model.Movie;
 using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 
 namespace MovieWebAPI.Controllers
@@ -16,15 +19,19 @@ namespace MovieWebAPI.Controllers
     [ApiController]
     public class MovieController : ControllerBase
     {
+        private readonly IMemoryCache _memoryCache;
         private readonly IMovieRepository _movieRepository;
         private readonly HttpClient _httpClient;
         DataSource _dataSource;
+        Caching _caching;
 
-        public MovieController(IMovieRepository movieRepository, IOptions<DataSource> dataSourceOptions)
+        public MovieController(IMemoryCache memoryCache, IMovieRepository movieRepository, IOptions<DataSource> dataSourceOptions, IOptions<Caching> cachingOptions)
         {
+            _memoryCache = memoryCache;
+            _movieRepository = movieRepository;
             _httpClient = new HttpClient();
             _dataSource = dataSourceOptions.Value as DataSource;
-            _movieRepository = movieRepository;
+            _caching = cachingOptions.Value as Caching;
         }
 
         /// <summary>
@@ -39,28 +46,34 @@ namespace MovieWebAPI.Controllers
         [HttpGet]
         public IActionResult Get([FromQuery]MovieSearchModel model)
         {
-            var movie = _movieRepository.Get(model.MapTo<MovieSearchDtoModel>());
-            if (movie==null)
+            var key = $"{CacheKeys.MovieList}?{model.Title}";
+            if (!_memoryCache.TryGetValue(key, out object value))
             {
-                var response = _httpClient.GetAsync($"{_dataSource.APIUrl}?t={model.Title}&apiKey={_dataSource.APIKey}").Result;
-                if (response.IsSuccessStatusCode)
+                var movie = _movieRepository.Get(model.MapTo<MovieSearchDtoModel>());
+                if (movie == null)
                 {
-                    var fact = response.Content.ReadAsStringAsync();
-                    if (fact.Result.Contains("Error"))
+                    var response = _httpClient.GetAsync($"{_dataSource.APIUrl}?t={model.Title}&apiKey={_dataSource.APIKey}").Result;
+
+                    if (!response.IsSuccessStatusCode)
+                        return NotFound();
+
+                    var read = response.Content.ReadAsStringAsync();
+                    if (read.Result.Contains("Error"))
                     {
-                        var data = JsonConvert.DeserializeObject<APIResult>(fact.Result);
+                        var data = JsonConvert.DeserializeObject<APIResult>(read.Result);
                         return NotFound(new { data.Error });
                     }
                     else
                     {
-                        var data = JsonConvert.DeserializeObject<MovieEditModel>(fact.Result);
+                        var data = JsonConvert.DeserializeObject<MovieEditModel>(read.Result);
                         var d = _movieRepository.Create(data.MapTo<MovieEditDtoModel>());
-                        return Ok(new { data });
+                        value = Ok(data);
                     }
                 }
-                return NotFound();
+                value = movie.MapTo<MovieListModel>();
+                _memoryCache.Set(key, value, DateTime.Now.AddMinutes(_caching.GetFromMinutes));
             }
-            return Ok(movie.MapTo<MovieListModel>());
+            return Ok(value);
         }
 
     }

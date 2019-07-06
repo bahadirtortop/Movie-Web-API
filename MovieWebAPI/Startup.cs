@@ -47,6 +47,7 @@ namespace MovieWebAPI
 
             #region AppSettings
             services.Configure<DataSource>(Configuration.GetSection("DataSource"));
+            services.Configure<Caching>(Configuration.GetSection("Caching"));
             #endregion
 
             //#region HostedService
@@ -69,6 +70,10 @@ namespace MovieWebAPI
                 c.IncludeXmlComments(xmlPath);
             });
 
+            #endregion
+
+            #region MemCache
+            services.AddMemoryCache();
             #endregion
 
             #region Mvc
@@ -96,7 +101,6 @@ namespace MovieWebAPI
             #region Swagger
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
-
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
