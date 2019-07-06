@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ namespace MovieWebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MovieController : ControllerBase
     {
         private readonly IMemoryCache _memoryCache;
@@ -30,8 +32,8 @@ namespace MovieWebAPI.Controllers
             _memoryCache = memoryCache;
             _movieRepository = movieRepository;
             _httpClient = new HttpClient();
-            _dataSource = dataSourceOptions.Value as DataSource;
-            _caching = cachingOptions.Value as Caching;
+            _dataSource = dataSourceOptions.Value;
+            _caching = cachingOptions.Value;
         }
 
         /// <summary>
