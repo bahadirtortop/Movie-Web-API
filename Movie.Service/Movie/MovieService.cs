@@ -34,14 +34,14 @@ namespace Movie.Service.Movie
 
         public MovieListDtoModel Get(MovieSearchDtoModel model)
         {
-            var movie = new MovieListDtoModel();
-
             var data = _context.Movies
                 .FirstOrDefault(p=>(!string.IsNullOrEmpty(model.Title)&&p.Title.Contains(model.Title))
                                     ||string.IsNullOrEmpty(model.Title));
 
             if (data != null)
             {
+                var movie = new MovieListDtoModel();
+                movie.Id = data.Id;
                 movie.Title = data.Title;
                 movie.Year = data.Year;
                 movie.Released = data.Released;
@@ -54,8 +54,9 @@ namespace Movie.Service.Movie
                 movie.Country = data.Country;
                 movie.Poster = data.Poster;
                 movie.ImdbRating = data.ImdbRating;
+                return movie;
             }
-            return movie;
+            return null;
         }
 
         public void Update(MovieEditDtoModel model)

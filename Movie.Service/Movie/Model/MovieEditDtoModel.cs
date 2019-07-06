@@ -6,7 +6,7 @@ namespace Movie.Service.Movie.Model
     {
         public string Title { get; set; }
         public short Year { get; set; }
-        public DateTime Released { get; set; }
+        public string Released { get; set; }
         public string Runtime { get; set; }
         public string Genre { get; set; }
         public string Director { get; set; }

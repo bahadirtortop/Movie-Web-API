@@ -29,7 +29,7 @@ namespace Movie.Domain
 
                 entity.Property(e => e.Released)
                     .IsRequired()
-                    .HasColumnType("datetime");
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.Runtime)
                     .IsRequired()

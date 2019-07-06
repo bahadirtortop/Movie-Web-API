@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Movie.Domain;
 using Movie.Service.Movie;
+using MovieWebAPI.Infrastructure.AppSettings;
+using MovieWebAPI.Infrastructure.HostedService;
 using MovieWebAPI.Infrastructure.Mapping;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -37,6 +39,15 @@ namespace MovieWebAPI
             #region Service DI
             services.AddScoped<IMovieRepository, MovieService>();
             #endregion
+
+            #region AppSettings
+            services.Configure<DataSource>(Configuration.GetSection("DataSource"));
+            #endregion
+
+            //#region HostedService
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DataSourceService>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, RequestCollectorService>();
+            //#endregion
 
             #region Mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
