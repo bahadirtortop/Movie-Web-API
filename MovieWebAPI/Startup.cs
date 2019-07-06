@@ -48,6 +48,7 @@ namespace MovieWebAPI
             #region AppSettings
             services.Configure<DataSource>(Configuration.GetSection("DataSource"));
             services.Configure<Caching>(Configuration.GetSection("Caching"));
+            services.Configure<Logging>(Configuration.GetSection("Logging"));
             #endregion
 
             //#region HostedService
