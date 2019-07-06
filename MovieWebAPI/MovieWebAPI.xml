@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MovieWebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:MovieWebAPI.Controllers.MovieController.Get(MovieWebAPI.Model.Movie.MovieSearchModel)">
+            <summary>
+            Return a movie.
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+            <response code="200">Return a movie</response>
+            <response code="404">Movie not found</response>
+        </member>
+        <member name="M:MovieWebAPI.Infrastructure.Mapping.AutoMapperConfiguration.Init">
+            <summary>
+            Initialize mapper
+            </summary> 
+        </member>
+        <member name="P:MovieWebAPI.Infrastructure.Mapping.AutoMapperConfiguration.Mapper">
+            <summary>
+            Mapper
+            </summary>
+        </member>
+        <member name="P:MovieWebAPI.Infrastructure.Mapping.AutoMapperConfiguration.MapperConfiguration">
+            <summary>
+            Mapper configuration
+            </summary>
+        </member>
+    </members>
+</doc>

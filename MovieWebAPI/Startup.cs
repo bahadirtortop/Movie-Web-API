@@ -12,6 +12,11 @@ using MovieWebAPI.Infrastructure.HostedService;
 using MovieWebAPI.Infrastructure.Mapping;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace MovieWebAPI
 {
@@ -49,6 +54,23 @@ namespace MovieWebAPI
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, RequestCollectorService>();
             //#endregion
 
+            #region Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "Movie",
+                    Description = "Movie API",
+                    TermsOfService = "Movie Swagger"
+                });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.XML";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
+
+            #endregion
+
             #region Mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options =>
@@ -70,6 +92,19 @@ namespace MovieWebAPI
             {
                 app.UseHsts();
             }
+
+            #region Swagger
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Movie API V1");
+                c.DocExpansion(DocExpansion.List);
+            });
+            #endregion
 
             //app.UseHttpsRedirection();
             app.UseMvc();

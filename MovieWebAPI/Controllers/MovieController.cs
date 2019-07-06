@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Movie.Service.Movie;
 using Movie.Service.Movie.Model;
@@ -25,7 +26,16 @@ namespace MovieWebAPI.Controllers
             _dataSource = dataSourceOptions.Value as DataSource;
             _movieRepository = movieRepository;
         }
-        // GET: api/Movie
+
+        /// <summary>
+        /// Return a movie.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <response code="200">Return a movie</response>
+        /// <response code="404">Movie not found</response>
+        [ProducesResponseType(typeof(MovieListModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
         public IActionResult Get([FromQuery]MovieSearchModel model)
         {
@@ -48,6 +58,7 @@ namespace MovieWebAPI.Controllers
                         return Ok(new { data });
                     }
                 }
+                return NotFound();
             }
             return Ok(movie.MapTo<MovieListModel>());
         }
