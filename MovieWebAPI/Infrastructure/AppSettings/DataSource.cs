@@ -5,5 +5,7 @@ namespace MovieWebAPI.Infrastructure.AppSettings
     {
         public string APIUrl { get; set; }
         public string APIKey { get; set; }
+        public int UpdateFromMinutes { get; set; }
+
     }
 }

@@ -91,10 +91,9 @@ namespace MovieWebAPI
             services.Configure<Authentication>(Configuration.GetSection("Authentication"));
             #endregion
 
-            //#region HostedService
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DataSourceService>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, RequestCollectorService>();
-            //#endregion
+            #region HostedService
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DataSourceService>();
+            #endregion
 
             #region Swagger
             services.AddSwaggerGen(c =>

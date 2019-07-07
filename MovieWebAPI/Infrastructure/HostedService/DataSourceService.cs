@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Movie.Service.Movie;
+using Movie.Service.Movie.Model;
 using MovieWebAPI.Infrastructure.AppSettings;
+using MovieWebAPI.Infrastructure.Mapping;
 using MovieWebAPI.Model.Movie;
 using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,48 +17,40 @@ namespace MovieWebAPI.Infrastructure.HostedService
     {
         HttpClient _httpClient;
         DataSource _dataSource;
-        public DataSourceService(IOptions<DataSource> dataSourceOptions,IServiceScopeFactory serviceScopeFactory, IMovieRepository movieRepository)
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+        public DataSourceService(IOptions<DataSource> dataSourceOptions,IServiceScopeFactory serviceScopeFactory)
         {
             _httpClient = new HttpClient();
             _dataSource = dataSourceOptions.Value as DataSource;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cToken)
         {
             while (!cToken.IsCancellationRequested)
             {
-                //await Update(cToken);
+                await Update(cToken);
             }
         }
 
-        public async Task<MovieEditModel> GetAsync(string title)
+        public async Task Update(CancellationToken cancellationToken)
         {
-            var response = await _httpClient.GetAsync($"{_dataSource.APIUrl}?t={title}&apiKey={_dataSource.APIKey}");
-            if (response.IsSuccessStatusCode)
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var fact = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<MovieEditModel>(fact);
-                return data;
+                var movieRepository = scope.ServiceProvider.GetRequiredService<IMovieRepository>();
+                var movies = movieRepository.GetAll();
+                foreach (var movie in movies)
+                {
+                    var response = await _httpClient.GetAsync($"{_dataSource.APIUrl}?t={movie.Title}&apiKey={_dataSource.APIKey}", cancellationToken);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var fact = await response.Content.ReadAsStringAsync();
+                        var data = JsonConvert.DeserializeObject<MovieEditModel>(fact);
+                        movieRepository.Update(data.MapTo<MovieEditDtoModel>());
+                    }
+                }
+                await Task.Delay(TimeSpan.FromMinutes(_dataSource.UpdateFromMinutes), cancellationToken);
             }
-            return new MovieEditModel();
         }
-
-        //public async Task Update(CancellationToken cancellationToken)
-        //{
-        //    var movies = _movieRepository.GetAll();
-        //    foreach (var movie in movies)
-        //    {
-        //        var response = await _httpClient.GetAsync($"{_dataSource.APIUrl}?t={movie.Title}&apiKey={_dataSource.APIKey}", cancellationToken);
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            var fact = await response.Content.ReadAsStringAsync();
-        //            var data = JsonConvert.DeserializeObject<MovieEditModel>(fact);
-        //            Console.WriteLine($"{DateTime.Now.ToString()}\n{fact}");
-        //        }
-        //    }
-
-
-        //    await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
-        //}
     }
 }
