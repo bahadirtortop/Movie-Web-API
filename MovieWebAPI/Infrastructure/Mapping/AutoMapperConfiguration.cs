@@ -16,6 +16,7 @@ namespace MovieWebAPI.Infrastructure.Mapping
                 #region Movie
                 cfg.CreateMap<MovieSearchDtoModel, MovieSearchModel>().ReverseMap();
                 cfg.CreateMap<MovieEditDtoModel, MovieEditModel>().ReverseMap();
+                cfg.CreateMap<MovieEditModel, MovieListModel>().ReverseMap();
                 cfg.CreateMap<MovieListDtoModel, MovieListModel>().ReverseMap();
                 #endregion
             });

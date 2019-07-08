@@ -4,11 +4,11 @@
         <name>MovieWebAPI</name>
     </assembly>
     <members>
-        <member name="M:MovieWebAPI.Controllers.MovieController.Get(MovieWebAPI.Model.Movie.MovieSearchModel)">
+        <member name="M:MovieWebAPI.Controllers.MovieController.Get(System.String)">
             <summary>
             Return a movie.
             </summary>
-            <param name="model"></param>
+            <param name="Title"></param>
             <returns></returns>
             <response code="200">Return a movie</response>
             <response code="404">Movie not found</response>

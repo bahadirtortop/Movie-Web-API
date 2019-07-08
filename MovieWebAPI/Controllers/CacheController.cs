@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using MovieWebAPI.Infrastructure.Caching;
@@ -8,6 +9,7 @@ namespace MovieWebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CacheController : ControllerBase
     {
         private readonly IMemoryCache _memoryCache;

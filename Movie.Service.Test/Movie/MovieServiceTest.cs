@@ -117,9 +117,9 @@ namespace Movie.Service.Test.Movie
             return movie;
         }
 
-        private MovieSearchDtoModel GetSearch()
+        private string GetSearch()
         {
-            return new MovieSearchDtoModel { Title = "Into The Wild" };
+            return  "Into The Wild";
         }
     }
 }

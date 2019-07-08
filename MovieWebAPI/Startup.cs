@@ -38,6 +38,14 @@ namespace MovieWebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder => builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin().AllowCredentials());
+            });
+            #endregion
+
             #region Authentication
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,14 +55,15 @@ namespace MovieWebAPI
             .AddJwtBearer(options => {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidAudience = Configuration["Jwt:Audience"],
                     ValidateIssuer = true,
                     ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidateLifetime = true,
+                    ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                        Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])),
+                    ClockSkew= TimeSpan.Zero
                 };
 
                 options.Events = new JwtBearerEvents
@@ -141,6 +150,8 @@ namespace MovieWebAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseCors("AllowSpecificOrigin");
+
             app.UseAuthentication();
 
             if (env.IsDevelopment())

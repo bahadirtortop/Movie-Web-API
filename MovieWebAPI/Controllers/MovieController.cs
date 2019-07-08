@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,6 +17,7 @@ using System.Net.Http;
 
 namespace MovieWebAPI.Controllers
 {
+    [EnableCors("AllowSpecificOrigin")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -39,22 +41,26 @@ namespace MovieWebAPI.Controllers
         /// <summary>
         /// Return a movie.
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="Title"></param>
         /// <returns></returns>
         /// <response code="200">Return a movie</response>
         /// <response code="404">Movie not found</response>
         [ProducesResponseType(typeof(MovieListModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public IActionResult Get([FromQuery]MovieSearchModel model)
+        public IActionResult Get([FromQuery]string Title)
         {
-            var key = $"{CacheKeys.MovieList}?{model.Title}";
+            var key = CacheKeys.MovieList;
+            if (string.IsNullOrEmpty(Title))
+            {
+                key += $"?{Title}";
+            }
             if (!_memoryCache.TryGetValue(key, out object value))
             {
-                var movie = _movieRepository.Get(model.MapTo<MovieSearchDtoModel>());
+                var movie = _movieRepository.Get(Title);
                 if (movie == null)
                 {
-                    var response = _httpClient.GetAsync($"{_dataSource.APIUrl}?t={model.Title}&apiKey={_dataSource.APIKey}").Result;
+                    var response = _httpClient.GetAsync($"{_dataSource.APIUrl}?t={Title}&apiKey={_dataSource.APIKey}").Result;
 
                     if (!response.IsSuccessStatusCode)
                         return NotFound();
@@ -69,14 +75,18 @@ namespace MovieWebAPI.Controllers
                     {
                         var data = JsonConvert.DeserializeObject<MovieEditModel>(read.Result);
                         var d = _movieRepository.Create(data.MapTo<MovieEditDtoModel>());
-                        value = Ok(data);
+                        value = data.MapTo<MovieListModel>();
                     }
                 }
-                value = movie.MapTo<MovieListModel>();
+                else
+                {
+                    value = movie.MapTo<MovieListModel>();
+                }
                 _memoryCache.Set(key, value, DateTime.Now.AddMinutes(_caching.GetFromMinutes));
             }
             return Ok(value);
         }
+
 
     }
 }

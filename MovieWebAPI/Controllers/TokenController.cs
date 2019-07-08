@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -12,6 +13,7 @@ using MovieWebAPI.Model.User;
 
 namespace MovieWebAPI.Controllers
 {
+    [EnableCors("AllowSpecificOrigin")]
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous()]
@@ -34,7 +36,7 @@ namespace MovieWebAPI.Controllers
             {
                 if (user.Username==_authentication.UserName&&user.Password == _authentication.Password)
                 {
-                    return new ObjectResult(GenerateToken(user.Username));
+                    return Ok(GenerateToken(user.Username));
                 }
             }
             return Unauthorized();
@@ -50,7 +52,7 @@ namespace MovieWebAPI.Controllers
                 issuer: _jwt.Issuer,
                 audience: _jwt.Audience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(3),
+                expires: DateTime.Now.AddMinutes(120),
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
             );
 

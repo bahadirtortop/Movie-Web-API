@@ -32,11 +32,11 @@ namespace Movie.Service.Movie
             return data.Id;
         }
 
-        public MovieListDtoModel Get(MovieSearchDtoModel model)
+        public MovieListDtoModel Get(string title)
         {
             var data = _context.Movies
-                .FirstOrDefault(p=>(!string.IsNullOrEmpty(model.Title)&&p.Title.Contains(model.Title))
-                                    ||string.IsNullOrEmpty(model.Title));
+                .FirstOrDefault(p=>(!string.IsNullOrEmpty(title) &&p.Title.Contains(title))
+                                    ||string.IsNullOrEmpty(title));
 
             if (data != null)
             {
