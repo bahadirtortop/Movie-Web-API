@@ -51,7 +51,7 @@ namespace MovieWebAPI.Controllers
         public IActionResult Get([FromQuery]string Title)
         {
             var key = CacheKeys.MovieList;
-            if (string.IsNullOrEmpty(Title))
+            if (!string.IsNullOrEmpty(Title))
             {
                 key += $"?{Title}";
             }
